@@ -35,6 +35,12 @@
         .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out; }
         .admin-controls { display: none; }
         body.admin-mode .admin-controls { display: flex; }
+        .slider { position: relative; }
+        .slider-img { display: none; }
+        .slider-img.active { display: block; }
+        .slider-btn { position: absolute; top: 50%; transform: translateY(-50%); background-color: rgba(0,0,0,0.5); color: white; border: none; padding: 0.5rem; cursor: pointer; z-index: 10; }
+        .slider-btn.prev { left: 10px; }
+        .slider-btn.next { right: 10px; }
     </style>
 </head>
 <body class="antialiased">
@@ -71,7 +77,7 @@
             <div class="mb-16"><div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-semibold accent-yellow">Alumni</h3><button onclick="openItemModal('alumni')" class="admin-controls bg-accent-yellow text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition-colors text-sm">Add Alumni</button></div><div id="alumni-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"></div></div>
             <div id="recruitment-section"></div>
         </section>
-        <section id="resources" class="content-section"><h2 class="text-3xl font-bold text-center mb-12">Resources</h2><div class="space-y-16"><div><div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-semibold accent-yellow">Projects</h3><button onclick="openItemModal('projects')" class="admin-controls bg-accent-yellow text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition-colors text-sm">Add New Project</button></div><div id="projects-list" class="card overflow-x-auto rounded-lg p-4"></div></div><div><div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-semibold accent-yellow">Hardware</h3><button onclick="openItemModal('hardware')" class="admin-controls bg-accent-yellow text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition-colors text-sm">Add New Hardware</button></div><div id="hardware-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div></div></div></section>
+        <section id="resources" class="content-section"><h2 class="text-3xl font-bold text-center mb-12">Resources</h2><div class="space-y-16"><div><div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-semibold accent-yellow">Projects</h3><button onclick="openItemModal('projects')" class="admin-controls bg-accent-yellow text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition-colors text-sm">Add New Project</button></div><div id="projects-list" class="card overflow-x-auto rounded-lg p-4"></div></div><div><div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-semibold accent-yellow">Hardware</h3><button onclick="openItemModal('hardware')" class="admin-controls bg-accent-yellow text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition-colors text-sm">Add New Hardware</button></div><div id="hardware-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div></div><div><div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-semibold accent-yellow">Software</h3><button onclick="openItemModal('software')" class="admin-controls bg-accent-yellow text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition-colors text-sm">Add New Software</button></div><div id="software-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div></div><div><div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-semibold accent-yellow">Algorithm</h3><button onclick="openItemModal('algorithm')" class="admin-controls bg-accent-yellow text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition-colors text-sm">Add New Algorithm</button></div><div id="algorithm-list" class="space-y-4"></div></div></div></section>
         <section id="notices" class="content-section"><div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-bold">Notices</h2><button onclick="openItemModal('notices')" class="admin-controls bg-accent-yellow text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition-colors">Write New Post</button></div><div id="notices-list" class="space-y-4"></div></section>
         <section id="news" class="content-section"><div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-bold">News</h2><button onclick="openItemModal('news')" class="admin-controls bg-accent-yellow text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition-colors">Write New Post</button></div><div id="news-list" class="space-y-4"></div></section>
         <section id="memories" class="content-section"><div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-bold">Memories</h2><button onclick="openItemModal('memories')" class="admin-controls bg-accent-yellow text-black font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition-colors">Write New Post</button></div><div id="memories-list" class="space-y-4"></div></section>
@@ -94,9 +100,9 @@
 
         // --- Initial Data ---
         const initialData = {
-            leader: [{ id: 'leader_1', name: 'Jinsoo Kim, Ph.D.', title: 'Assistant Professor', department: 'Department of Energy Science and Engineering, DGIST', education: 'Ph.D., Materials Science and Engineering, Seoul National University', image: 'https://storage.googleapis.com/gemini-prod/images/d88273b4-d3fb-4652-9943-8fb4fa553d16', email: 'jinsoo.kim@dgist.ac.kr', scholar: 'https://scholar.google.com/citations?user=PLEASE_ADD_YOUR_GOOGLE_SCHOLAR_ID' }],
-            members: [{ id: 'member_1', name: 'Member Name', status: 'Ph.D. Candidate', joined: 'Fall 2025', school: 'B.S. from [University Name]', image: 'https://placehold.co/200x200/333333/e0e0e0?text=Photo', bio: 'Researching next-generation anode materials.' }],
-            alumni: [{ id: 'alumni_1', name: 'Alumni Name', period: '2026 - 2028', current: 'Current: [Company/Institution]', image: 'https://placehold.co/200x200/333333/e0e0e0?text=Photo' }],
+            leader: [{ id: 'leader_1', name: 'Jinsoo Kim, Ph.D.', title: 'Assistant Professor', department: 'Department of Energy Science and Engineering, DGIST', education: 'Ph.D., Materials Science and Engineering, Seoul National University', image: ['https://storage.googleapis.com/gemini-prod/images/d88273b4-d3fb-4652-9943-8fb4fa553d16'], email: 'jinsoo.kim@dgist.ac.kr', scholar: 'https://scholar.google.com/citations?user=PLEASE_ADD_YOUR_GOOGLE_SCHOLAR_ID' }],
+            members: [{ id: 'member_1', name: 'Member Name', status: 'Ph.D. Candidate', joined: 'Fall 2025', school: 'B.S. from [University Name]', image: ['https://placehold.co/200x200/333333/e0e0e0?text=Photo'], bio: 'Researching next-generation anode materials.' }],
+            alumni: [{ id: 'alumni_1', name: 'Alumni Name', period: '2026 - 2028', current: 'Current: [Company/Institution]', image: ['https://placehold.co/200x200/333333/e0e0e0?text=Photo'] }],
             recruitment: [{ id: 'recruitment_1', title: 'Recruitment', content: 'We are actively looking for passionate and self-motivated graduate students and researchers to join our team.', positions: 'Ph.D. (1), M.S. (2)', contact: 'Interested candidates should send their CV, academic transcripts, and a brief statement of research interests to Prof. Jinsoo Kim at <a href="mailto:jinsoo.kim@dgist.ac.kr" class="text-accent-yellow hover:underline">jinsoo.kim@dgist.ac.kr</a>.' }],
             philosophy: [
                 { id: 'philo_1', title: 'Mission', icon: '<svg class="w-8 h-8 mr-4 accent-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>', content: '<b class="text-gray-300">To bridge the gap</b> between fundamental science and industrial application by developing <b class="text-gray-300">scalable, high-impact</b> battery technologies.' },
@@ -105,16 +111,16 @@
                 { id: 'philo_4', title: 'Principle', icon: '<svg class="w-8 h-8 mr-4 accent-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M12 6V4m0 16v-2M8 8l1.414-1.414M14.586 14.586L16 16m-1.414-9.172L16 5.414M5.414 16L4 14.586M12 12a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>', content: 'Guided by <b class="text-gray-300">"Engineered Science"</b> — using practical challenges to inspire fundamental questions, ensuring our work is <b class="text-gray-300">relevant and innovative.</b>' }
             ],
             themes: [
-                { id: 'theme_1', title: '1. Diffusion-Stabilizing Hierarchical Electrode Design', image: 'https://storage.googleapis.com/gemini-prod/images/41834988-c71d-4054-9549-c186064f331f', content: 'We design multi-layered and functionally graded electrode architectures to manage ion transport and reaction kinetics.'},
-                { id: 'theme_2', title: '2. Advanced Processing for Innovative Electrode Structures', image: 'https://storage.googleapis.com/gemini-prod/images/5f04b2b2-6580-4927-a9a7-285038c1a84f', content: 'Our lab focuses on developing and optimizing innovative manufacturing processes, particularly solvent-free dry coating technology.'},
-                { id: 'theme_3', title: '3. Macroscale-Level Advanced Characterizations', image: 'https://storage.googleapis.com/gemini-prod/images/4a98442d-2898-47f6-b258-39046c823023', content: 'We utilize advanced characterization techniques like operando Raman spectroscopy, TXM, and Neutron Imaging to visualize and understand the complex chemo-mechanical evolution of battery components during operation.'},
-                { id: 'theme_4', title: '4. Physics-Based Modeling & Experiment Feedback Loop', image: 'https://storage.googleapis.com/gemini-prod/images/421e428d-19cd-488f-a1b4-2826a310c37f', content: 'We integrate experimental results with physics-based models to establish robust design principles. This feedback loop accelerates the optimization of cell design for balanced energy, power, and lifetime.'}
+                { id: 'theme_1', title: '1. Diffusion-Stabilizing Hierarchical Electrode Design', image: ['https://storage.googleapis.com/gemini-prod/images/41834988-c71d-4054-9549-c186064f331f'], content: 'We design multi-layered and functionally graded electrode architectures to manage ion transport and reaction kinetics.'},
+                { id: 'theme_2', title: '2. Advanced Processing for Innovative Electrode Structures', image: ['https://storage.googleapis.com/gemini-prod/images/5f04b2b2-6580-4927-a9a7-285038c1a84f'], content: 'Our lab focuses on developing and optimizing innovative manufacturing processes, particularly solvent-free dry coating technology.'},
             ],
             articles: [{ id: 'article_1', title: 'Advanced parametrization for the production of high-energy solid-state lithium pouch cells', authors: 'W Lee, J Lee, T Yu, ... J Kim*', journal: 'Nature Communications, 15, 5860 (2024)', url: 'https://www.nature.com/articles/s41467-024-49298-y' }],
-            notices: [{ id: 'notice_1', title: '[2025-08-15] Weekly Meeting', content: 'The weekly group meeting schedule has been updated.', image: '' }],
-            news: [{ id: 'news_1', title: '[2025-07-20] Paper Accepted!', content: 'Congratulations! Our paper on dry electrodes was accepted by Nature Communications!', image: 'https://placehold.co/800x600/1f1f1f/FFC000?text=Celebration' }],
+            notices: [{ id: 'notice_1', title: '[2025-08-15] Weekly Meeting', content: 'The weekly group meeting schedule has been updated.', image: [] }],
+            news: [{ id: 'news_1', title: '[2025-07-20] Paper Accepted!', content: 'Congratulations! Our paper on dry electrodes was accepted by Nature Communications!', image: ['https://placehold.co/800x600/1f1f1f/FFC000?text=Celebration'] }],
             projects: [{ id: 'project_1', sponsor: 'NST', name: 'Development of a continuous solvent-free innovative process', period: '2021-2026', budget: '₩4.85B', status: 'Ongoing' }],
-            hardware: [{ id: 'hardware_1', name: 'Pouch Cell Assembly Line', manufacturer: '[Name]', acquired: '2025', image: 'https://placehold.co/600x400/333333/e0e0e0?text=Equipment' }]
+            hardware: [{ id: 'hardware_1', name: 'Pouch Cell Assembly Line', manufacturer: '[Name]', acquired: '2025', image: ['https://placehold.co/600x400/333333/e0e0e0?text=Equipment'] }],
+            software: [{ id: 'software_1', name: 'COMSOL Multiphysics', manufacturer: 'COMSOL Inc.', acquired: '2025', image: ['https://placehold.co/600x400/333333/e0e0e0?text=Software'] }],
+            algorithm: [{ id: 'algo_1', title: 'Electrode Design Toolkit v1.0', content: 'A proprietary toolkit developed in-house for rapid prototyping and simulation of novel electrode architectures. Based on Python and leveraging machine learning models.', image: [] }]
         };
 
         // --- Navigation & Page Control ---
@@ -171,8 +177,7 @@
                 }
             }
         }
-        document.getElementById('copyright-year').addEventListener('click', handleAdminAccess);
-
+        
         // --- Accordion ---
         function setupAccordions() {
             document.querySelectorAll('.accordion-toggle').forEach(button => {
@@ -196,15 +201,17 @@
         const confirmModal = document.getElementById('confirm-modal');
         const itemFormFields = document.getElementById('item-form-fields');
         const itemFieldsTemplates = {
-            archives: `<input type="text" name="title" placeholder="Title" required><textarea name="content" placeholder="Content..." rows="5" required></textarea><div><label class="block text-sm font-medium text-gray-400 mb-2">Image</label><input type="file" name="image" accept="image/*"></div>`,
+            archives: `<input type="text" name="title" placeholder="Title" required><textarea name="content" placeholder="Content..." rows="5" required></textarea><div><label class="block text-sm font-medium text-gray-400 mb-2">Images</label><input type="file" name="image" accept="image/*" multiple></div>`,
             articles: `<input type="text" name="title" placeholder="Title" required><input type="text" name="authors" placeholder="Authors" required><input type="text" name="journal" placeholder="Journal, Vol, Page (YYYY)" required><input type="url" name="url" placeholder="URL Link">`,
-            themes: `<input type="text" name="title" placeholder="Theme Title" required><textarea name="content" placeholder="Description..." rows="5" required></textarea><input type="url" name="image" placeholder="Image URL">`,
-            leader: `<input type="text" name="name" placeholder="Name" required><input type="text" name="title" placeholder="Title" required><input type="text" name="department" placeholder="Department" required><input type="text" name="education" placeholder="Education" required><input type="url" name="image" placeholder="Image URL" required><input type="email" name="email" placeholder="Email"><input type="url" name="scholar" placeholder="Google Scholar URL">`,
-            members: `<input type="text" name="name" placeholder="Name" required><input type="text" name="status" placeholder="Status (e.g., Ph.D. Candidate)" required><input type="text" name="joined" placeholder="Joined Date" required><input type="text" name="school" placeholder="Alma Mater" required><textarea name="bio" placeholder="Short Bio..." rows="3"></textarea><input type="url" name="image" placeholder="Image URL" required>`,
-            alumni: `<input type="text" name="name" placeholder="Name" required><input type="text" name="period" placeholder="Period (e.g., 2026-2028)" required><input type="text" name="current" placeholder="Current Position" required><input type="url" name="image" placeholder="Image URL" required>`,
+            themes: `<input type="text" name="title" placeholder="Theme Title" required><textarea name="content" placeholder="Description..." rows="5" required></textarea><div><label class="block text-sm font-medium text-gray-400 mb-2">Images</label><input type="file" name="image" accept="image/*" multiple></div>`,
+            leader: `<input type="text" name="name" placeholder="Name" required><input type="text" name="title" placeholder="Title" required><input type="text" name="department" placeholder="Department" required><input type="text" name="education" placeholder="Education" required><input type="email" name="email" placeholder="Email"><input type="url" name="scholar" placeholder="Google Scholar URL"><div><label class="block text-sm font-medium text-gray-400 mb-2">Image</label><input type="file" name="image" accept="image/*"></div>`,
+            members: `<input type="text" name="name" placeholder="Name" required><input type="text" name="status" placeholder="Status (e.g., Ph.D. Candidate)" required><input type="text" name="joined" placeholder="Joined Date" required><input type="text" name="school" placeholder="Alma Mater" required><textarea name="bio" placeholder="Short Bio..." rows="3"></textarea><div><label class="block text-sm font-medium text-gray-400 mb-2">Image</label><input type="file" name="image" accept="image/*"></div>`,
+            alumni: `<input type="text" name="name" placeholder="Name" required><input type="text" name="period" placeholder="Period (e.g., 2026-2028)" required><input type="text" name="current" placeholder="Current Position" required><div><label class="block text-sm font-medium text-gray-400 mb-2">Image</label><input type="file" name="image" accept="image/*"></div>`,
             recruitment: `<input type="text" name="title" placeholder="Title" required><textarea name="content" placeholder="Content..." rows="4" required></textarea><input type="text" name="positions" placeholder="Open Positions" required><textarea name="contact" placeholder="Contact Info..." rows="3" required></textarea>`,
             projects: `<input type="text" name="sponsor" placeholder="Sponsor" required><input type="text" name="name" placeholder="Project Name" required><input type="text" name="period" placeholder="Period" required><input type="text" name="budget" placeholder="Budget" required><select name="status"><option>Ongoing</option><option>Completed</option></select>`,
-            hardware: `<input type="text" name="name" placeholder="Equipment Name" required><input type="text" name="manufacturer" placeholder="Manufacturer" required><input type="text" name="acquired" placeholder="Acquired Year" required><input type="url" name="image" placeholder="Image URL">`
+            hardware: `<input type="text" name="name" placeholder="Equipment Name" required><input type="text" name="manufacturer" placeholder="Manufacturer" required><input type="text" name="acquired" placeholder="Acquired Year" required><div><label class="block text-sm font-medium text-gray-400 mb-2">Images</label><input type="file" name="image" accept="image/*" multiple></div>`,
+            software: `<input type="text" name="name" placeholder="Software Name" required><input type="text" name="manufacturer" placeholder="Manufacturer" required><input type="text" name="acquired" placeholder="Acquired Year" required><div><label class="block text-sm font-medium text-gray-400 mb-2">Images</label><input type="file" name="image" accept="image/*" multiple></div>`,
+            algorithm: `<input type="text" name="title" placeholder="Algorithm/Toolkit Title" required><textarea name="content" placeholder="Description..." rows="5" required></textarea><div><label class="block text-sm font-medium text-gray-400 mb-2">Images</label><input type="file" name="image" accept="image/*" multiple></div>`
         };
 
         function openItemModal(category, id = null) {
@@ -226,34 +233,44 @@
         }
         function closeItemModal() { itemModal.classList.add('hidden'); itemFormFields.innerHTML = ''; }
 
-        function saveItem() {
+        async function saveItem() {
             const category = itemModal.querySelector('#item-category').value;
             const id = itemModal.querySelector('#item-id').value;
             const inputs = itemFormFields.querySelectorAll('input, textarea, select');
-            const data = Array.from(inputs).reduce((acc, input) => ({ ...acc, [input.name]: input.type === 'file' ? input.files[0] : input.value }), {});
-            
-            const handleSave = (imageUrl) => {
-                if (imageUrl) data.image = imageUrl;
-                if (id) {
-                    const index = appData[category].findIndex(i => i.id === id);
-                    if (!data.image && appData[category][index]) data.image = appData[category][index].image;
-                    appData[category][index] = { ...appData[category][index], ...data };
+            const data = {};
+            for (const input of inputs) {
+                if (input.type === 'file') {
+                    if (input.files.length > 0) {
+                        data[input.name] = await Promise.all(Array.from(input.files).map(file => toBase64(file)));
+                    }
                 } else {
-                    appData[category].unshift({ id: `${category}_${Date.now()}`, ...data });
+                    data[input.name] = input.value;
                 }
-                reRender(category);
-                closeItemModal();
-            };
-
-            const imageFile = data.image;
-            if (imageFile && typeof imageFile === 'object') {
-                const reader = new FileReader();
-                reader.onload = e => handleSave(e.target.result);
-                reader.readAsDataURL(imageFile);
-            } else {
-                handleSave(id ? null : (data.image || ''));
             }
+            
+            if (id) {
+                const index = appData[category].findIndex(i => i.id === id);
+                if (data.image === undefined && appData[category][index]) {
+                    data.image = appData[category][index].image;
+                }
+                appData[category][index] = { ...appData[category][index], ...data };
+            } else {
+                const newItem = { id: `${category}_${Date.now()}`, ...data };
+                if (['members', 'alumni'].includes(category)) {
+                    appData[category].push(newItem);
+                } else {
+                    appData[category].unshift(newItem);
+                }
+            }
+            reRender(category);
+            closeItemModal();
         }
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
 
         function deleteItem(category, id) {
             confirmModal.classList.remove('hidden');
@@ -270,30 +287,42 @@
             if (!item) return;
             let contentHTML = '';
             if (category === 'members' || category === 'alumni') {
-                contentHTML = `<div class="flex flex-col md:flex-row items-center gap-8"><img src="${item.image}" alt="${item.name}" class="w-48 h-48 rounded-full object-cover border-4 border-gray-700"><div class="text-center md:text-left"><h4 class="text-2xl font-bold text-white">${item.name}</h4><p class="text-accent-yellow font-medium">${item.status || item.period}</p><p class="text-gray-400 mt-2">${item.school || item.current}</p><p class="text-gray-400 mt-4">${item.bio || ''}</p></div></div>`;
-            } else { // For notices, news, memories
-                contentHTML = `<h3 class="text-2xl font-bold mb-4">${item.title}</h3>${item.image ? `<img src="${item.image}" class="rounded-md my-4 max-h-96 w-auto mx-auto">` : ''}<p class="text-gray-400 whitespace-pre-wrap">${item.content}</p>`;
+                contentHTML = `<div class="flex flex-col md:flex-row items-center gap-8"><img src="${item.image[0]}" alt="${item.name}" class="w-48 h-48 rounded-full object-cover border-4 border-gray-700"><div class="text-center md:text-left"><h4 class="text-2xl font-bold text-white">${item.name}</h4><p class="text-accent-yellow font-medium">${item.status || item.period}</p><p class="text-gray-400 mt-2">${item.school || item.current}</p><p class="text-gray-400 mt-4">${item.bio || ''}</p></div></div>`;
+            } else {
+                const images = item.image || [];
+                const sliderId = `slider_${Date.now()}`;
+                const sliderHTML = images.length > 0 ? `<div id="${sliderId}" class="slider relative my-4">${images.map((img, i) => `<img src="${img}" class="slider-img w-full rounded-md max-h-96 object-contain ${i === 0 ? 'active' : ''}">`).join('')}${images.length > 1 ? `<button class="slider-btn prev" onclick="changeSlide('${sliderId}', -1)">&#10094;</button><button class="slider-btn next" onclick="changeSlide('${sliderId}', 1)">&#10095;</button>` : ''}</div>` : '';
+                contentHTML = `<h3 class="text-2xl font-bold mb-4">${item.title}</h3>${sliderHTML}<p class="text-gray-400 whitespace-pre-wrap">${item.content}</p>`;
             }
             document.getElementById('view-item-content').innerHTML = contentHTML;
             viewItemModal.classList.remove('hidden');
         }
         function closeViewItemModal() { viewItemModal.classList.add('hidden'); }
+        
+        function changeSlide(sliderId, n) {
+            const slider = document.getElementById(sliderId);
+            const slides = slider.querySelectorAll('.slider-img');
+            let slideIndex = Array.from(slides).findIndex(slide => slide.classList.contains('active'));
+            slides[slideIndex].classList.remove('active');
+            slideIndex = (slideIndex + n + slides.length) % slides.length;
+            slides[slideIndex].classList.add('active');
+        }
 
         // --- Render Functions ---
         const renderFunctions = {
             leader: item => {
-                document.getElementById('leader-section').innerHTML = `<div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-semibold accent-yellow">Leader</h3><button onclick="openItemModal('leader', '${item.id}')" class="admin-controls bg-transparent text-gray-400 p-2 rounded-full hover:bg-gray-700"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg></button></div><div class="card max-w-4xl mx-auto p-8 rounded-lg flex flex-col md:flex-row items-center gap-8"><img src="${item.image}" alt="${item.name}" class="w-48 h-48 rounded-full object-cover border-4 border-gray-700"><div class="text-center md:text-left"><h4 class="text-2xl font-bold text-white">${item.name}</h4><p class="text-accent-yellow font-medium">${item.title}</p><p class="text-gray-400 mt-2">${item.department}</p><p class="text-gray-500 mt-4">${item.education}</p><div class="mt-4 flex justify-center md:justify-start space-x-4 text-gray-400"><a href="mailto:${item.email}" class="hover:text-accent-yellow">Email</a><span>|</span><a href="${item.scholar}" target="_blank" class="hover:text-accent-yellow">Google Scholar</a></div></div></div>`;
+                document.getElementById('leader-section').innerHTML = `<div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-semibold accent-yellow">Leader</h3><button onclick="openItemModal('leader', '${item.id}')" class="admin-controls bg-transparent text-gray-400 p-2 rounded-full hover:bg-gray-700"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg></button></div><div class="card max-w-4xl mx-auto p-8 rounded-lg flex flex-col md:flex-row items-center gap-8"><img src="${item.image[0]}" alt="${item.name}" class="w-48 h-48 rounded-full object-cover border-4 border-gray-700"><div class="text-center md:text-left"><h4 class="text-2xl font-bold text-white">${item.name}</h4><p class="text-accent-yellow font-medium">${item.title}</p><p class="text-gray-400 mt-2">${item.department}</p><p class="text-gray-500 mt-4">${item.education}</p><div class="mt-4 flex justify-center md:justify-start space-x-4 text-gray-400"><a href="mailto:${item.email}" class="hover:text-accent-yellow">Email</a><span>|</span><a href="${item.scholar}" target="_blank" class="hover:text-accent-yellow">Google Scholar</a></div></div></div>`;
             },
-            members: item => `<div class="card text-center p-6 rounded-lg relative group"><div class="absolute top-2 right-2 space-x-1 admin-controls"><button onclick="openItemModal('members', '${item.id}')" class="bg-gray-700 p-2 rounded-full hover:bg-accent-yellow text-white hover:text-black"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg></button><button onclick="deleteItem('members', '${item.id}')" class="bg-gray-700 p-2 rounded-full hover:bg-red-500 text-white"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></button></div><div class="cursor-pointer" onclick="viewItem('members', '${item.id}')"><img src="${item.image}" alt="${item.name}" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-700"><h5 class="text-lg font-bold text-white">${item.name}</h5><p class="text-gray-400">${item.status}</p><p class="text-sm text-gray-500 mt-1">Joined: ${item.joined}</p><p class="text-sm text-gray-500">${item.school}</p></div></div>`,
-            alumni: item => `<div class="card text-center p-6 rounded-lg relative group"><div class="absolute top-2 right-2 space-x-1 admin-controls"><button onclick="openItemModal('alumni', '${item.id}')" class="..."></button><button onclick="deleteItem('alumni', '${item.id}')" class="..."></button></div><div class="cursor-pointer" onclick="viewItem('alumni', '${item.id}')"><img src="${item.image}" alt="${item.name}" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-700"><h5 class="text-lg font-bold text-white">${item.name}</h5><p class="text-gray-400">${item.period}</p><p class="text-sm text-gray-500 mt-1">${item.current}</p></div></div>`,
-            recruitment: item => {
-                document.getElementById('recruitment-section').innerHTML = `<div class="relative"><div class="absolute top-0 right-0 admin-controls"><button onclick="openItemModal('recruitment', '${item.id}')" class="..."></button></div><h3 class="text-2xl font-semibold text-center mb-8 accent-yellow">${item.title}</h3><div class="card max-w-3xl mx-auto p-8 rounded-lg text-center"><p class="text-lg text-gray-300 mb-4">${item.content}</p><div class="text-left space-y-3 my-6"><p><strong class="font-semibold text-white">Open Positions:</strong> ${item.positions}</p></div><p class="text-gray-400">${item.contact}</p></div></div>`;
-            },
+            members: item => `<div class="card text-center p-6 rounded-lg relative group"><div class="absolute top-2 right-2 space-x-1 admin-controls"><button onclick="openItemModal('members', '${item.id}')" class="bg-gray-700 p-2 rounded-full hover:bg-accent-yellow text-white hover:text-black"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg></button><button onclick="deleteItem('members', '${item.id}')" class="bg-gray-700 p-2 rounded-full hover:bg-red-500 text-white"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></button></div><div class="cursor-pointer" onclick="viewItem('members', '${item.id}')"><img src="${item.image[0]}" alt="${item.name}" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-700"><h5 class="text-lg font-bold text-white">${item.name}</h5><p class="text-gray-400">${item.status}</p><p class="text-sm text-gray-500 mt-1">Joined: ${item.joined}</p><p class="text-sm text-gray-500">${item.school}</p></div></div>`,
+            alumni: item => `<div class="card text-center p-6 rounded-lg relative group"><div class="absolute top-2 right-2 space-x-1 admin-controls"><button onclick="openItemModal('alumni', '${item.id}')" class="..."></button><button onclick="deleteItem('alumni', '${item.id}')" class="..."></button></div><div class="cursor-pointer" onclick="viewItem('alumni', '${item.id}')"><img src="${item.image[0]}" alt="${item.name}" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-700"><h5 class="text-lg font-bold text-white">${item.name}</h5><p class="text-gray-400">${item.period}</p><p class="text-sm text-gray-500 mt-1">${item.current}</p></div></div>`,
+            recruitment: item => { document.getElementById('recruitment-section').innerHTML = `<div class="relative"><div class="absolute top-0 right-0 admin-controls"><button onclick="openItemModal('recruitment', '${item.id}')" class="..."></button></div><h3 class="text-2xl font-semibold text-center mb-8 accent-yellow">${item.title}</h3><div class="card max-w-3xl mx-auto p-8 rounded-lg text-center"><p class="text-lg text-gray-300 mb-4">${item.content}</p><div class="text-left space-y-3 my-6"><p><strong class="font-semibold text-white">Open Positions:</strong> ${item.positions}</p></div><p class="text-gray-400">${item.contact}</p></div></div>`; },
             philosophy: item => `<div class="card rounded-lg"><button class="accordion-toggle w-full flex items-center justify-between p-6 text-left"><div class="flex items-center">${item.icon}<h3 class="text-xl font-bold text-white">${item.title}</h3></div><svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div class="accordion-content px-6"><p class="text-gray-400 py-4">${item.content}</p></div></div>`,
-            themes: item => `<div class="card rounded-lg overflow-hidden relative group"><div class="absolute top-2 right-2 space-x-1 admin-controls z-10"><button onclick="openItemModal('themes', '${item.id}')" class="bg-gray-700 p-2 rounded-full hover:bg-accent-yellow text-white hover:text-black"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg></button><button onclick="deleteItem('themes', '${item.id}')" class="bg-gray-700 p-2 rounded-full hover:bg-red-500 text-white"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></button></div><button class="accordion-toggle w-full flex items-center justify-between p-6 text-left"><h3 class="text-xl font-bold text-white">${item.title}</h3><svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div class="accordion-content px-6"><div class="py-6 grid md:grid-cols-2 gap-8 items-center"><img src="${item.image}" alt="${item.title}" class="rounded-md object-cover w-full h-64"><p class="text-gray-400">${item.content}</p></div></div></div>`,
+            themes: item => `<div class="card rounded-lg overflow-hidden relative group"><div class="absolute top-2 right-2 space-x-1 admin-controls z-10"><button onclick="openItemModal('themes', '${item.id}')" class="bg-gray-700 p-2 rounded-full hover:bg-accent-yellow text-white hover:text-black"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg></button><button onclick="deleteItem('themes', '${item.id}')" class="bg-gray-700 p-2 rounded-full hover:bg-red-500 text-white"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></button></div><button class="accordion-toggle w-full flex items-center justify-between p-6 text-left"><h3 class="text-xl font-bold text-white">${item.title}</h3><svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div class="accordion-content px-6"><div class="py-6 grid md:grid-cols-2 gap-8 items-center"><img src="${item.image[0]}" alt="${item.title}" class="rounded-md object-cover w-full h-64"><p class="text-gray-400">${item.content}</p></div></div></div>`,
             articles: item => `<div class="relative group"><div class="absolute top-0 right-0 space-x-1 admin-controls"><button onclick="openItemModal('articles', '${item.id}')" class="..."></button><button onclick="deleteItem('articles', '${item.id}')" class="..."></button></div><a href="${item.url}" target="_blank" class="block publication-item border-b border-gray-800 pb-4 hover:opacity-80 transition-opacity"><p class="font-semibold text-white">${item.title}</p><p class="text-sm text-gray-400">${item.authors.replace(/(J Kim\*?)/g, '<span class="font-bold text-accent-yellow">$1</span>')}</p><p class="text-xs text-gray-500 mt-1">${item.journal}</p></a></div>`,
             projects: item => `<tr><td class="p-3">${item.sponsor}</td><td class="p-3">${item.name}</td><td class="p-3">${item.period}</td><td class="p-3">${item.budget}</td><td class="p-3"><span class="bg-green-800 text-green-300 text-xs font-medium px-2 py-1 rounded">${item.status}</span></td><td class="p-3 admin-controls"><div class="flex space-x-2"><button onclick="openItemModal('projects', '${item.id}')" class="..."></button><button onclick="deleteItem('projects', '${item.id}')" class="..."></button></div></td></tr>`,
-            hardware: item => `<div class="card p-4 rounded-lg relative group"><div class="absolute top-2 right-2 space-x-1 admin-controls"><button onclick="openItemModal('hardware', '${item.id}')" class="..."></button><button onclick="deleteItem('hardware', '${item.id}')" class="..."></button></div><img src="${item.image}" alt="${item.name}" class="rounded-md mb-4"><h4 class="font-bold text-white">${item.name}</h4><p class="text-sm text-gray-400">${item.manufacturer}</p><p class="text-sm text-gray-500">Acquired: ${item.acquired}</p></div>`,
+            hardware: item => `<div class="card p-4 rounded-lg relative group"><div class="absolute top-2 right-2 space-x-1 admin-controls"><button onclick="openItemModal('hardware', '${item.id}')" class="..."></button><button onclick="deleteItem('hardware', '${item.id}')" class="..."></button></div><img src="${item.image[0]}" alt="${item.name}" class="rounded-md mb-4"><h4 class="font-bold text-white">${item.name}</h4><p class="text-sm text-gray-400">${item.manufacturer}</p><p class="text-sm text-gray-500">Acquired: ${item.acquired}</p></div>`,
+            software: item => `<div class="card p-4 rounded-lg relative group"><div class="absolute top-2 right-2 space-x-1 admin-controls"><button onclick="openItemModal('software', '${item.id}')" class="..."></button><button onclick="deleteItem('software', '${item.id}')" class="..."></button></div><img src="${item.image[0]}" alt="${item.name}" class="rounded-md mb-4"><h4 class="font-bold text-white">${item.name}</h4><p class="text-sm text-gray-400">${item.manufacturer}</p><p class="text-sm text-gray-500">Acquired: ${item.acquired}</p></div>`,
+            algorithm: item => `<div class="card p-6 rounded-lg relative group"><div class="absolute top-2 right-2 space-x-1 admin-controls"><button onclick="openItemModal('algorithm', '${item.id}')" class="..."></button><button onclick="deleteItem('algorithm', '${item.id}')" class="..."></button></div><h4 class="text-lg font-bold text-white mb-2">${item.title}</h4><p class="text-gray-400">${item.content}</p></div>`,
             archives: (item, category) => `<div class="card p-4 rounded-lg cursor-pointer relative group" onclick="viewItem('${category}', '${item.id}')"><div class="absolute top-2 right-2 space-x-1 admin-controls"><button onclick="event.stopPropagation(); openItemModal('${category}', '${item.id}')" class="..."></button><button onclick="event.stopPropagation(); deleteItem('${category}', '${item.id}')" class="..."></button></div><p class="text-gray-300"><span class="font-semibold accent-yellow mr-2">${item.title.match(/(\[.*?\])?/)[0] || ''}</span>${item.title.replace(/(\[.*?\])?/, '').trim()}</p></div>`
         };
 
@@ -337,6 +366,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             appData = JSON.parse(JSON.stringify(initialData)); // Deep copy
             document.getElementById('copyright-year').textContent = new Date().getFullYear();
+            document.getElementById('copyright-year').addEventListener('click', handleAdminAccess);
             Object.keys(appData).forEach(reRender);
             setupMobileMenu();
             showSection('home', document.querySelector('header nav a'));
